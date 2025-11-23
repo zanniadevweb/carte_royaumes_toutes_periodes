@@ -1,0 +1,211 @@
+
+		<link rel='stylesheet' href='https://unpkg.com/leaflet@1.9.3/dist/leaflet.css' integrity='sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=' crossorigin=''/>
+		<script src='https://unpkg.com/leaflet@1.9.3/dist/leaflet.js' integrity='sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=' crossorigin=''></script>
+		<div id='map' style='width: 100%; height: 95%; font-size: 25px; margin: 0; border-radius: 0px; border: 2px solid #3c546b;'></div>
+<div style="margin: 10px 0;">    <input id="searchInput" type="text" placeholder="Rechercher par nom ou ID...">    <button onclick="validateSearch()">Rechercher</button>    <button onclick="resetSearch()">Réinitialiser</button>    <span id="searchResults"></span></div><script>
+		window.jsonValues = [["ID","world_region","place_name","alt_name","geo_clue","geometry","type","biblio","Latitude","Longitude"],["0","Tunisie","Bulla","","","point","villes et domaines","","36.558800741051954","8.753890324119414"],["1","Tunisie","Gilda (?)","Riha","","point","villes et domaines","","34.310035","-5.935718"],["2","Tunisie","Tingi","Tangier","","point","villes et domaines","","35.78336823394947","-5.816696932730005"],["3","Tunisie","Lixus","","","point","villes et domaines","","35.20083324400923","-6.098552567585296"],["4","Algérie","Cirta","","","point","villes et domaines","","36.36338070322103","6.607072682317123"],["5","Algérie","Hippo (Regius)","","","polygon","villes et domaines","","36.88217983962333","7.749633804536083"],["6","Algérie","Siga","","","point","villes et domaines","","36.272140","6.725088"],["7","Algérie","Iol/Caesarea","Cherchell","","point","villes et domaines","","36.60768055416968","2.1905412037127863"],["8","Tunisie","Zama","","","point","villes et domaines","","36.11186690594038","9.285526022409872"]];
+		markersJsonGlobal = [{"customMarkerIcon":"assets/css/images/foncier.png"},{"customMarkerIcon":"assets/css/images/foncier.png"},{"customMarkerIcon":"assets/css/images/foncier.png"},{"customMarkerIcon":"assets/css/images/foncier.png"},{"customMarkerIcon":"assets/css/images/foncier.png"},{"customMarkerIcon":"assets/css/images/foncier.png"},{"customMarkerIcon":"assets/css/images/foncier.png"},{"customMarkerIcon":"assets/css/images/foncier.png"},{"customMarkerIcon":"assets/css/images/foncier.png"},{"customMarkerIcon":"assets/css/images/foncier.png"},{"customMarkerIcon":"assets/css/images/foncier.png"},{"customMarkerIcon":"assets/css/images/foncier.png"},{"customMarkerIcon":"assets/css/images/foncier.png"},{"customMarkerIcon":"assets/css/images/foncier.png"},{"customMarkerIcon":"assets/css/images/foncier.png"},{"customMarkerIcon":"assets/css/images/foncier.png"},{"customMarkerIcon":"assets/css/images/foncier.png"},{"customMarkerIcon":"assets/css/images/foncier.png"},{"customMarkerIcon":"assets/css/images/foncier.png"},{"customMarkerIcon":"assets/css/images/foncier.png"},{"customMarkerIcon":"assets/css/images/foncier.png"},{"customMarkerIcon":"assets/css/images/foncier.png"},{"customMarkerIcon":"assets/css/images/foncier.png"},{"customMarkerIcon":"assets/css/images/foncier.png"},{"customMarkerIcon":"assets/css/images/foncier.png"},{"customMarkerIcon":"assets/css/images/foncier.png"},{"customMarkerIcon":"assets/css/images/foncier.png"},{"customMarkerIcon":"assets/css/images/foncier.png"},{"customMarkerIcon":"assets/css/images/foncier.png"},{"customMarkerIcon":"assets/css/images/foncier.png"},{"customMarkerIcon":"assets/css/images/foncier.png"},{"customMarkerIcon":"assets/css/images/foncier.png"},{"customMarkerIcon":"assets/css/images/foncier.png"},{"customMarkerIcon":"assets/css/images/foncier.png"},{"customMarkerIcon":"assets/css/images/foncier.png"},{"customMarkerIcon":"assets/css/images/foncier.png"},{"customMarkerIcon":"assets/css/images/foncier.png"},{"customMarkerIcon":"assets/css/images/riviere.png"},{"customMarkerIcon":"assets/css/images/riviere.png"},{"customMarkerIcon":"assets/css/images/riviere.png"},{"customMarkerIcon":"assets/css/images/massif.png"},{"customMarkerIcon":"assets/css/images/massif.png"},{"customMarkerIcon":"assets/css/images/massif.png"}];
+
+		isUsingDefaultMarkers = markersJsonGlobal !== null ? false : true;
+
+		isUsingCustomIcon = true;
+
+		isUsingLabelsForMarkers = [true,2];
+
+		markers = [];
+
+		var map = L.map('map').setView([35.02455125410006,4.583621779475477], 6);
+
+		var iPointsArray = [["36.558800741051954","8.753890324119414","ID = 0</br>WORLD_REGION = Tunisie</br>PLACE_NAME = Bulla</br>GEOMETRY = point</br>TYPE = villes et domaines</br>LATITUDE = 36.558800741051954</br>LONGITUDE = 8.753890324119414"],["34.310035","-5.935718","ID = 1</br>WORLD_REGION = Tunisie</br>PLACE_NAME = Gilda (?)</br>ALT_NAME = Riha</br>GEOMETRY = point</br>TYPE = villes et domaines</br>LATITUDE = 34.310035</br>LONGITUDE = -5.935718"],["35.78336823394947","-5.816696932730005","ID = 2</br>WORLD_REGION = Tunisie</br>PLACE_NAME = Tingi</br>ALT_NAME = Tangier</br>GEOMETRY = point</br>TYPE = villes et domaines</br>LATITUDE = 35.78336823394947</br>LONGITUDE = -5.816696932730005"],["35.20083324400923","-6.098552567585296","ID = 3</br>WORLD_REGION = Tunisie</br>PLACE_NAME = Lixus</br>GEOMETRY = point</br>TYPE = villes et domaines</br>LATITUDE = 35.20083324400923</br>LONGITUDE = -6.098552567585296"],["36.36338070322103","6.607072682317123","ID = 4</br>WORLD_REGION = Algérie</br>PLACE_NAME = Cirta</br>GEOMETRY = point</br>TYPE = villes et domaines</br>LATITUDE = 36.36338070322103</br>LONGITUDE = 6.607072682317123"],["36.88217983962333","7.749633804536083","ID = 5</br>WORLD_REGION = Algérie</br>PLACE_NAME = Hippo (Regius)</br>GEOMETRY = polygon</br>TYPE = villes et domaines</br>LATITUDE = 36.88217983962333</br>LONGITUDE = 7.749633804536083"],["36.272140","6.725088","ID = 6</br>WORLD_REGION = Algérie</br>PLACE_NAME = Siga</br>GEOMETRY = point</br>TYPE = villes et domaines</br>LATITUDE = 36.272140</br>LONGITUDE = 6.725088"],["36.60768055416968","2.1905412037127863","ID = 7</br>WORLD_REGION = Algérie</br>PLACE_NAME = Iol/Caesarea</br>ALT_NAME = Cherchell</br>GEOMETRY = point</br>TYPE = villes et domaines</br>LATITUDE = 36.60768055416968</br>LONGITUDE = 2.1905412037127863"],["36.11186690594038","9.285526022409872","ID = 8</br>WORLD_REGION = Tunisie</br>PLACE_NAME = Zama</br>GEOMETRY = point</br>TYPE = villes et domaines</br>LATITUDE = 36.11186690594038</br>LONGITUDE = 9.285526022409872"]];
+
+		new L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png', {
+		attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> <a href="https://github.com/zanniadevweb/cms_r-lite-web-gis">- Customized by Alexandre Zanni</a>',
+		maxNativeZoom:19,
+		maxZoom: 19,
+		noWrap: true
+		}).addTo(map);
+		L.control.scale().addTo(map);
+
+		var legend = L.control({position: 'bottomright'});
+		legend.onAdd = function (map) {
+			var div = L.DomUtil.create('div', 'leaflet-legend');
+			div.style.background = 'white';
+			div.style.padding = '8px 12px';
+			div.style.border = '1px solid #ccc';
+			div.style.borderRadius = '6px';
+			div.style.boxShadow = '0 2px 6px rgba(0,0,0,0.1)';
+			div.innerHTML = '<b>Domaines royaux et nobiliaires de Numidie</b><br>' +
+				'<span style="padding-right: 10px;"><svg width="18" height="12" viewBox="0 0 18 12" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle; margin-right:6px;"><rect width="18" height="12" rx="2" ry="2" fill="#800080"/></svg> Royaume maure de Baga / Bochus I / Bogud</span></br>'+
+				'<span style="padding-right: 10px;"><svg width="18" height="12" viewBox="0 0 18 12" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle; margin-right:6px;"><rect width="18" height="12" rx="2" ry="2" fill="#008000"/></svg> Royaume maure de Bocchus II</span>'+
+				'<span style="padding-right: 10px;"><svg width="18" height="12" viewBox="0 0 18 12" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle; margin-right:6px;"><rect width="18" height="12" rx="2" ry="2" fill="#800020"/></svg> Royaume numide de Massinissa II</span></br>'+
+				'<span style="padding-right: 10px;"><svg width="18" height="12" viewBox="0 0 18 12" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle; margin-right:6px;"><rect width="18" height="12" rx="2" ry="2" fill="#964B00"/></svg> Royaume msaesyle de Siphax</span>'+
+				'<span style="padding-right: 10px;"><svg width="18" height="12" viewBox="0 0 18 12" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle; margin-right:6px;"><rect width="18" height="12" rx="2" ry="2" fill="#FFA500"/></svg> Royaume massyle de Gaïa</span></br>'+
+				'<span style="padding-right: 10px;"><svg width="18" height="12" viewBox="0 0 18 12" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle; margin-right:6px;"><rect width="18" height="12" rx="2" ry="2" fill="#FFFF00"/></svg> Royaume numide de Juba I</span>'+
+				'<span style="padding-right: 10px;"><svg width="18" height="12" viewBox="0 0 18 12" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle; margin-right:6px;"><rect width="18" height="12" rx="2" ry="2" fill="#FF0000"/></svg> Province romaine d\'Afrique</span>';
+			return div;
+		};
+		legend.addTo(map);
+
+		fillPolygons(["([35.51859078437751,7.030606752800136],[35.17807391099965,7.9430383393848665],[34.49523923083183,8.706999006328783],[33.575726585912186,10.015184052155062],[32.67036171209432,11.996149777401373],[32.351659016733805,13.687759560628773],[31.966609908039327,14.714629369044793],[31.884787623841476,15.031080644778728],[31.30460313910901,15.20147449528549],[30.898218289987824,16.58221440906962],[31.218204070354012,16.565724681601218],[31.27461384463824,16.02989209002223],[31.443057905963066,15.665614524254273],[31.967721958477448,15.353362998072305],[31.967721958477448,15.353362998072305],[32.167942476474536,15.353362998072305],[32.367723899511496,15.21050902441035],[32.43722054915253,14.908453904976271],[32.49053476866494,14.57604369703204],[32.689603615810405,14.24088629728661],[32.80039134337211,13.79050355276622],[32.78653441236096,13.584464167676838],[32.911169011484304,13.304250603955216],[32.80962809771315,12.914149368185972],[32.802238742836145,12.519103220709583],[32.922239139569726,12.098782875127204],[33.07929201960153,11.843053719081674],[33.155226414341726,11.52712666194459],[33.34265256761244,11.117934652765634],[33.83241974377175,11.008046980717932],[33.87805012079655,10.744316567803494],[33.70452508898543,10.689372731779684],[33.6176307959941,10.48058615488906],[33.924366604812306,10.09822929516782],[34.1793066237462,10.04328545914397],[34.37000778917933,10.246577652432185],[34.54669969068046,10.58173505217762],[35.27244929410875,10.599377582117704],[35.77108362157058,10.39059100522712],[35.66624809530216,10.008731344861408],[35.971002458833304,9.630717736249853],[36.13758559669352,9.493358146190266],[36.2515467885983,9.575773900226002],[36.74480141612342,9.222948610656411],[36.916332907339346,9.060871001855443],[36.95893370785358,8.797140588941007],[36.88747489146081,8.46265437928592],[36.94019338213916,8.22639588438341],[36.83827851539182,7.940796711902509],[36.86026313446031,7.78970116283694],[36.96789634739788,7.786953971035736],[36.96215405510457,7.619143862940315],[37.03703681551226,7.517357755446713],[37.04580851158095,7.415711658802585],[37.08003339420569,7.386831726947382],[37.07016961545928,7.182165937758584],[37.02631507732094,7.249472136887795],[36.9407258740405,7.197275492665149],[36.675076123540684,7.635201020265413],[36.46899782892476,7.982720783116206],[36.07868972920712,8.255734617897598],[35.83496722731463,7.992589009476073],[35.632025748924335,7.618970924513936]).color('#FFFF00').tooltip(\"Royaume numide de Juba I\")","([36.94264812587234,7.19686657524926],[37.02706047551625,7.25396182253773],[37.07309399365152,7.177009761018531],[37.08076353186449,7.38862793019632],[37.04240808380674,7.411988377443239],[37.03692715121395,7.515049174120728],[36.96454176865639,7.616735826842512],[36.96563903097952,7.789877965260682],[36.862811793133616,7.787834374488077],[36.84786756699902,7.946748583655162],[36.94231879585834,8.22707395061793],[36.900159640527775,8.447872517425893],[35.292037725391886,8.43954306356149],[35.184359394901215,8.214183454826705],[35.179869695697526,7.972334118623517],[35.52216730743745,7.046799153895936],[35.63743212522637,7.620993383042985],[35.83362438871479,8.00020935017197],[36.09594068292883,8.269521094927345],[36.47320245162646,7.997990450571672],[36.78619163929147,7.50879520234252]).color('#FFA500').tooltip(\"Royaume massyle de Gaïa\")","([36.93737951228455,7.193069851500625],[36.470552099548755,7.984576769983722],[36.07640822208647,8.259405561123716],[35.83896829930447,7.99886790067145],[35.63832498777989,7.625100744721079],[35.53110865111194,7.0534568591499545],[35.48169627319588,2.6888162124549675],[34.04310144373859,-1.6120968002090577],[33.81703552468729,-3.549284326971916],[35.14282035267299,-2.8863689919242774],[35.052933417688585,-1.8640058888835824],[35.61756306387094,-1.1276148460816173],[35.91886157682848,-0.35589580185118486],[35.785290110875955,-0.059080707420013936],[36.1941953032644,0.31468644853035693],[36.4879988377927,1.0691390148734616],[36.81412239311077,3.0479063110812814],[36.861603168692525,4.9585162683769965],[36.6309578736654,5.382852324478362],[37.08804872579619,6.449188034101453]).color('#964B00').tooltip(\"Royaume msaesyle de Siphax\")","([33.81475318989855,-3.5698570613562457],[33.73301970958912,-5.709705202596109],[33.96113051194779,-6.896965580320795],[35.80868122182551,-5.9364255228324705],[35.83540564163621,-5.5791480943505025],[35.904068373426696,-5.489510158786944],[35.90184361070532,-5.297130004988965],[35.83729829371455,-5.352095763216966],[35.56786870997074,-5.234233348845423],[35.28138851170106,-4.835731601692448],[35.14854722218282,-4.3663239761027315],[35.244161049319324,-3.9430876377471717],[35.19389925068778,-3.8525183520705024],[35.28363058493408,-3.712406844993613],[35.18941007854536,-3.4045985989168335],[35.271074161587,-3.1000883318821746],[35.43012728573335,-2.97916366378058],[35.14315715988553,-2.891218450615792]).color('#800080').tooltip(\"Royaume maure de Baga / Bochus I / Bogud\")","([37.03018475872191,10.917121859503547],[37.07402503348958,11.038046527605138],[36.83698686371513,11.104005437478714],[36.48446528524534,10.81818349469317],[36.369548531863394,10.521368400261997],[36.139205266364,10.466402642033977],[35.83696404375453,10.642293068363553],[35.613990217376106,11.02705337595955],[35.22004345971263,11.136984892415516],[34.55316830023161,10.598320461781157],[35.28284557899023,10.598320461781157],[35.78016511573403,10.394478001937621],[35.66867661694219,10.015214270164476],[35.976005545682604,9.630453962568478],[36.14297607886908,9.491940352479274],[36.253797461381275,9.58648135598608],[36.75274915416852,9.22370735168134],[36.916301247863956,9.056611312474496],[36.95581774786809,8.80376882462572],[37.153092676128104,9.07310103994286],[37.23623245928193,9.232501738804073],[37.249351422789,9.413888740956464],[37.330638206000785,9.757581733093309],[37.25197513493661,9.938968735245702],[37.190735902465654,10.24125993493788],[36.96723000479483,10.2027839041783],[36.87940089270734,10.367606120135694],[36.77827240166753,10.274164331148091],[36.70784334156646,10.406082150895273],[36.866217801516726,10.603958880516068],[36.91893651295992,10.768856155200057]).color('#FF0000').tooltip(\"Province romaine d'Afrique\")","([36.97688503282667,6.219646312573675],[36.928597663401945,6.269115494978884],[36.466134509885435,6.549440861941653],[36.3733084116809,6.659372378397617],[36.151847730554344,6.725331288271229],[35.82293541977128,6.725331288271229],[35.53736685223257,6.675862105866021],[35.818481206842804,5.930153881170526],[35.883487000049925,4.933075060463149],[35.915524965301444,4.592287359449583],[36.248481802397315,4.5483147528671894],[36.54031547860439,4.784667513247563],[36.76507187630656,5.021020273627937],[36.685821008582664,5.119958638438313],[36.62412492319728,5.295849064767891],[36.66379236776743,5.543194976793893],[36.835448408537076,5.724581978946245],[36.80026822601405,5.922458708567039]).color('#800020').tooltip(\"Royaume numide de Massinissa II\")","([35.922420347285055,4.574364509519958],[35.47632833265731,2.6945355781225544],[34.028534887753395,-1.5730063603770983],[33.818861312111046,-3.529787353293721],[35.143943449198666,-2.885297851539188],[35.0585543912014,-1.8794244759668755],[35.61242771975851,-1.1154006043399312],[35.92442230589304,-0.3623697166164153],[35.7944246009799,-0.06770250252205347],[36.193530295747316,0.3038658889054436],[36.48998624707403,1.0711877395745086],[36.815221953821485,3.06314678420859],[36.86358108462144,4.962763338245467],[36.63911297805676,5.364013373309828],[36.63172952666905,5.302203297463667],[36.6824070764111,5.118068007399868],[36.76386180843797,5.0191296425894905],[36.541308585425924,4.7827768822091175],[36.24859262713975,4.548622718609417]).color('#008000').tooltip(\"Royaume maure de Bocchus II\")"]);
+
+		for (var iPoints = 0; iPoints < iPointsArray.length; iPoints++) {
+			createPoint(iPointsArray[iPoints][0],iPointsArray[iPoints][1],iPointsArray[iPoints][2], iPoints);
+		}
+
+		function fillPolygons(polygonLinesForHtmlExport) {
+			if (polygonLinesForHtmlExport !== '') {
+				if (polygonLinesForHtmlExport.includes('|')) {
+					fillPolygonsLoop(polygonLinesForHtmlExport.split('|'));
+				} else {
+					fillPolygonsLoop(polygonLinesForHtmlExport);
+				}
+			}
+		}
+
+		function fillPolygonsLoop(polygonLinesFromFile) {
+			var currPolyPointValues = '';
+			var currPolyPointValSeparated = [];
+			var currPolyPointValue = '';
+			var currPolyPointValuesAsArray = [];
+			var currPolyPointsColor = '';
+			var currPolyPointsTooltip = '';
+			for (var ipolygonLinesFromFile = 0; ipolygonLinesFromFile < polygonLinesFromFile.length; ipolygonLinesFromFile++) {
+				if (polygonLinesFromFile[ipolygonLinesFromFile] !== '') {
+					currPolyPointValues = polygonLinesFromFile[ipolygonLinesFromFile].split('.color')[0].replace('(','').replace(')','');
+					currPolyPointsColor = polygonLinesFromFile[ipolygonLinesFromFile].split('.color(')[1].split(')')[0].replaceAll('\'','');
+					currPolyPointsTooltip = polygonLinesFromFile[ipolygonLinesFromFile].split('.tooltip(')[1].replaceAll('"','').slice(0,-1);
+
+					currPolyPointValSeparated = currPolyPointValues.split(']');
+					for (var icurrPolyPointValues = 0; icurrPolyPointValues < currPolyPointValSeparated.length; icurrPolyPointValues++) {
+						if ( currPolyPointValSeparated[icurrPolyPointValues] !== '') {
+							currPolyPointValue = currPolyPointValSeparated[icurrPolyPointValues].split('[')[1];
+							currPolyPointValuesAsArray.push(currPolyPointValue.replace(' ', '').split(','));
+						}
+					}
+					createPolygon([currPolyPointValuesAsArray], currPolyPointsColor, currPolyPointsTooltip);
+					currPolyPointValuesAsArray = [];
+					currPolyPointsColor = '';
+					currPolyPointsTooltip = '';
+				}
+			}
+		}
+
+		function createPolygon(polyPointsValues, polyPointsColor, polyPointsTooltip) {
+			new L.polygon(polyPointsValues).setStyle({fillColor: polyPointsColor, color: polyPointsColor}).addTo(map).bindTooltip(polyPointsTooltip, {permanent: false, direction:"center"});
+		}
+
+		function createPoint(latitude, longitude, label, markerId) {
+			if (isUsingCustomIcon === true && markersJsonGlobal !== null && markersJsonGlobal[markerId] !== undefined && markersJsonGlobal[markerId].customMarkerIcon) {
+				var customMarkerIcon = L.icon({
+					iconUrl: markersJsonGlobal[markerId].customMarkerIcon,
+					// shadowUrl: 'leaf-shadow.png',
+				
+					iconSize:     [20, 30], // size of the icon
+					// shadowSize:   [50, 64], // size of the shadow
+					// iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
+					// shadowAnchor: [4, 62],  // the same for the shadow
+					// popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+				});
+				var paramCustomMarkerIcon = {icon: customMarkerIcon};
+				markers[markerId] = new L.marker([latitude,longitude], paramCustomMarkerIcon).bindPopup(label + '</br>').addTo(map);
+			} else if (markersJsonGlobal !== null && markersJsonGlobal[markerId] !== undefined && markersJsonGlobal[markerId].fillColor) {
+				var paramCustomMarkerIcon = {  
+					fillColor: markersJsonGlobal[markerId].fillColor, // '#3CC1F1'
+					fillOpacity: markersJsonGlobal[markerId].fillOpacity, // 1.0
+					color: markersJsonGlobal[markerId].borderColor, // black
+					weight: markersJsonGlobal[markerId].borderWeight,  // 0.2
+					radius: markersJsonGlobal[markerId].circleRadius, // 2000
+					stroke: markersJsonGlobal[markerId].hasBorder     // true,
+				}
+				markers[markerId] = new L.circle([latitude,longitude], paramCustomMarkerIcon).bindPopup(label + '</br>').addTo(map);
+			} else {
+				var customMarkerIcon = ""
+				markers[markerId] = new L.marker([latitude,longitude], paramCustomMarkerIcon).bindPopup(label + '</br>').addTo(map);
+			}
+			if (isUsingLabelsForMarkers[0] && isUsingLabelsForMarkers[1]) {
+				var labelText = '';
+				try {
+					var row = window.jsonValues && window.jsonValues[Number(markerId) + 1];
+					var parts = [];
+					for (var i = 1; i < isUsingLabelsForMarkers.length; i++) {
+						var col = isUsingLabelsForMarkers[i];
+						if (col === null || col === undefined || col === '') continue;
+						var colIndex = Number(col);
+						if (isNaN(colIndex)) continue;
+						if (row && row[colIndex] !== undefined && String(row[colIndex]).trim() !== '') {
+							parts.push(String(row[colIndex]).trim());
+						}
+					}
+					// fallback if nothing collected
+					if (parts.length === 0 && row) parts.push(String(row[2] || row[1] || row[0] || '').trim());
+					labelText = parts.join(' - ');
+				} catch (e) { labelText = ''; }
+				if (labelText) {
+					markers[markerId].bindTooltip(labelText, {
+						permanent: true,
+						direction: 'right',
+						offset: [8, 0],
+						className: 'marker-label'
+					});
+				}
+				if (labelText) {
+					markers[markerId].bindTooltip(labelText, {
+						permanent: true,
+						direction: 'right',
+						offset: [8, 0],
+						className: 'marker-label'
+					});
+				}
+			(function insertMarkerLabelStyle(){
+			if (document.getElementById('marker-label-style')) return;
+                var css = [
+                  ".leaflet-tooltip.marker-label, .marker-label {",
+                  "  border: none !important;",
+                  "  box-shadow: none !important;",
+                  "  color: #000 !important;",
+                  "  padding: 0 6px !important;",
+                  "  white-space: nowrap;",
+                  "  pointer-events: none;",
+                  "  font-size: 13px;",
+                  "  line-height: 1;",
+                  "  text-shadow: none !important;",
+                  "}",
+                  ".leaflet-tooltip.marker-label::before, .marker-label::before {",
+                  "  display: none !important;",
+                  "}"
+                ].join('\n');
+				var style = document.createElement('style');
+				style.id = 'marker-label-style';
+				style.type = 'text/css';
+				style.appendChild(document.createTextNode(css));
+				document.head.appendChild(style);
+			})();
+			}
+		}
+
+		function validateSearch() {
+            const query = document.getElementById('searchInput').value.trim().toLowerCase();
+            if (!query) {
+                alert("Veuillez saisir un terme de recherche");
+                return;
+            }
+            markers.forEach(marker => map.removeLayer(marker));
+            const results = markers.filter(marker => {
+                const popupContent = marker.getPopup()?.getContent()?.toLowerCase() || "";
+                return popupContent.includes(query);
+            });
+            results.forEach(marker => marker.addTo(map));
+            if (results.length === 0) {
+                document.getElementById('searchResults').textContent = "Aucun résultat trouvé";
+                return;
+            }
+            map.fitBounds(L.featureGroup(results).getBounds());
+            document.getElementById('searchResults').textContent = `${results.length} résultat(s) trouvé(s)`;
+        }
+
+        function resetSearch() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('searchResults').textContent = '';
+            markers.forEach(marker => marker.addTo(map));
+        }
+	</script>
